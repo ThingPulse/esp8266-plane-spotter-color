@@ -3,6 +3,9 @@
 This is the repository of the ESP8266 Plane Spotter Color. It downloads data from web APIs and displays aircrafts close
 to your location on a map.
 
+## Video
+[![ESP8266 Plane Spotter Color](http://img.youtube.com/vi/4pTkoMsl1H4/0.jpg)](http://www.youtube.com/watch?v=4pTkoMsl1H4 "Plane Spotter Color")
+
 ## Features
 * Beautiful startup splash screen
 * Automatic geo location by using WiFi scanning. List of visible SSIDs identifies your location
@@ -47,7 +50,7 @@ Install the following libraries:
 This is (not yet?) available through the library manager. You have to download it from here and add it to the Arduino IDE
 https://github.com/fredericplante/JPEGDecoder
 
-*Attention:* You'll also have to open User_config.h in Arduino/libraries/JPEGDecoder-master and change 
+*Attention:* You'll also have to open User_config.h in Arduino/libraries/JPEGDecoder-master and change
 ```
 #define USE_SD_CARD
 //#define USE_SPIFFS
