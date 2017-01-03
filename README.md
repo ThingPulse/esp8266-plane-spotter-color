@@ -16,6 +16,14 @@ https://blog.squix.org/2017/01/esp8266-planespotter-color.html
 * Detailed information about the nearest aircraft
 * Flight track: last 20 waypoints per aircraft displayed
 
+## Planed Features
+* Enable touch screen
+  * Zoom in/out by button
+  * shift map center
+  * call location service again
+  * select aircraft of interest
+* only download map if center of map, scale or map type changed
+
 ## Known Issues
 * Flickering with every update: not enough memory for frame/ double buffering
 * Sometimes waypoints get lost
@@ -70,3 +78,11 @@ into
 ### Adafruit GFX by Adafruit
 
 ![Adafruit GFX Lib](images/AdafruitGFXLib.png)
+
+## Credits
+
+This project wouldn't be possible if not for many open source contributors. Here are some I'd like to mention:
+* Frédéric Plante for his adaptations of the JPEGDecoder library
+* tzapu for the WifiManager library
+* Rene Nyfenegger for the base64 encoder I got from here: http://www.adp-gmbh.ch/cpp/common/base64.html
+* Adafruit for the ILI9341 driver and potentially also for the original designs of the TFT display
