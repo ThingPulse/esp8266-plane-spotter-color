@@ -129,9 +129,9 @@ void PlaneSpotter::drawPlane(Aircraft aircraft, boolean isSpecial) {
 }
 
 void PlaneSpotter::drawInfoBox(Aircraft closestAircraft) {
-  tft_->fillRect(0, geoMap_->getMapHeight(), tft_->width(), tft_->height() - geoMap_->getMapHeight(), TFT_BLACK);
+  tft_->fillRect(0, geoMap_->getMapHeight() + 10, tft_->width(), tft_->height() - geoMap_->getMapHeight()-10, TFT_BLACK);
   tft_->setTextWrap(true);
-  tft_->setCursor(0, geoMap_->getMapHeight() + 2);
+  tft_->setCursor(0, geoMap_->getMapHeight() + 12);
   tft_->setTextColor(TFT_YELLOW);
   tft_->print(closestAircraft.call);
   tft_->setTextColor(TFT_GREEN);
