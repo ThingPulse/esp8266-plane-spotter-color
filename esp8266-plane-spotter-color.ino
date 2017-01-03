@@ -119,8 +119,9 @@ void setup() {
 
 void loop() {
 
-  adsbClient.updateVisibleAircraft(QUERY_STRING + "&lat=" + String(mapCenter.lat) + "&lng=" + String(mapCenter.lon));
-  
+  adsbClient.updateVisibleAircraft(QUERY_STRING + "&lat=" + String(mapCenter.lat, 6) + "&lng=" + String(mapCenter.lon, 6));
+    
+  long startMillis = millis();
   planeSpotter.drawSPIFFSJpeg(geoMap.getMapName(), 0, 0);
 
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
@@ -136,7 +137,7 @@ void loop() {
   // Draw center of map
   CoordinatesPixel p = geoMap.convertToPixel(mapCenter);
   tft.fillCircle(p.x, p.y, 2, TFT_BLUE); 
-
+  Serial.println(String(millis()-startMillis) + "ms for drawing");
   delay(2000);
 
 }
