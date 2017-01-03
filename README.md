@@ -20,4 +20,31 @@ If you are currently prototyping this shows how to setup the connections for the
 
 ## Libraries
 
+Install the following libraries:
 
+### WifiManager by tzapu
+
+![WifiManager](images/WifiManagerLib.png)
+
+### Json Streaming Parser by Daniel Eichhorn
+
+![Json Streaming Parser] (images/JsonStreamingParserLib.png)
+
+### JPEGDecoder, fork by Frederic Plante
+
+This is (not yet?) available through the library manager. You have to download it from here and add it to the Arduino IDE
+https://github.com/fredericplante/JPEGDecoder
+
+*Attention:* You'll also have to open User_config.h in Arduino/libraries/JPEGDecoder-master and change 
+```
+#define USE_SD_CARD
+//#define USE_SPIFFS
+```
+into
+```
+//#define USE_SD_CARD
+#define USE_SPIFFS
+```
+### Adafruit GFX by Adafruit
+
+![Adafruit GFX Lib](images/AdafruitGFXLib.png)
