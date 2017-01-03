@@ -32,7 +32,8 @@ See more at https://blog.squix.org
 #define TOUCH_IRQ  D4
 #define LED_PIN D8
 
-// Needed for loading the map
+// Needed for loading the map. If you want to be save better get your own key here:
+// https://developer.mapquest.com/plan_purchase/steps/business_edition/business_edition_free/register
 #define MAP_QUEST_API_KEY "r19I8UVBfwIkmE4EZR9S6yMR43eMiRDZ"
 
 #define MAP_SCALE 27083 * 8
