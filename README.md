@@ -3,6 +3,18 @@
 This is the repository of the ESP8266 Plane Spotter Color. It downloads data from web APIs and displays aircrafts close
 to your location on a map.
 
+## Features
+* Beautiful startup splash screen
+* Automatic geo location by using WiFi scanning. List of visible SSIDs identifies your location
+* Automatic download of JPEGs from MapQuest
+* Detailed information about the nearest aircraft
+* Flight track: last 20 waypoints per aircraft displayed
+
+## Known Issues
+* Flickering with every update: not enough memory for frame/ double buffering
+* Sometimes waypoints get lost
+
+
 ## Hardware Requirements
 
 This project was built for the following hardware:
