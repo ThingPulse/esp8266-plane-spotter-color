@@ -44,7 +44,6 @@ void GeoMap::downloadMap(Coordinates mapCenter, long scale) {
 void GeoMap::downloadMap(Coordinates mapCenter, long scale, ProgressCallback progressCallback) {
   mapCenter_= mapCenter;
   scale_ = scale;
-
   downloadFile("http://open.mapquestapi.com/staticmap/v4/getmap?key=" + mapQuestApiKey_ + "&type=map&scalebar=false&size=" 
     + String(mapWidth_) + "," + String(mapHeight_) + "&scale=" + String(scale_) + "&center="+ String(mapCenter_.lat) + "," + String(mapCenter_.lon), getMapName(), progressCallback);
 }

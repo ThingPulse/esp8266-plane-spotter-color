@@ -24,6 +24,7 @@ See more at http://blog.squix.ch
 */
 
 #include <Arduino.h>
+#include <Adafruit_GFX.h>
 
 //SPIFFS stuff
 #include <FS.h>
@@ -65,7 +66,7 @@ Coordinates mapCenter;
 // lat=47.424341887&lng=8.56877803&fDstL=0&fDstU=10&fAltL=0&fAltL=1500&fAltU=10000
 //const String QUERY_STRING = "fDstL=0&fDstU=20&fAltL=0&fAltL=1000&fAltU=10000";
 // airport zürich is on 1410ft => hide landed airplanes
-const String QUERY_STRING = "fDstL=0&fDstU=20&fAltL=1500";
+const String QUERY_STRING = "fDstL=0&fDstU=20&fAltL=1500&trFmt=s";
 
 void downloadCallback(String filename, uint32_t bytesDownloaded, uint32_t bytesTotal);
 ProgressCallback _downloadCallback = downloadCallback;
@@ -75,7 +76,7 @@ void setup() {
 
   // Start serial communication
   Serial.begin(115200);
-
+  Serial.println("Free Heap: " + String(ESP.getFreeHeap()));
   // The LED pin needs to set HIGH
   // Use this pin to save energy
   pinMode(LED_PIN, D8);
@@ -84,8 +85,12 @@ void setup() {
   // Init TFT
   tft.begin();
   tft.setRotation(3);  // landscape
-  tft.cp437();
+  tft.cp437(false);
+  tft.setFont(&Dialog_plain_9);
   tft.fillScreen(TFT_BLACK);
+  planeSpotter.setTextColor(TFT_WHITE, TFT_BLACK);
+  planeSpotter.setTextAlignment(CENTER);
+  planeSpotter.drawString(160, 200, "     Loading Splash...     ");
 
   // Init file system
   if (!SPIFFS.begin()) { Serial.println("initialisation failed!"); return;}
@@ -94,7 +99,9 @@ void setup() {
   planeSpotter.copyProgmemToSpiffs(splash, splash_len, "/plane.jpg");
   planeSpotter.copyProgmemToSpiffs(plane, plane_len, "/plane.jpg");
   planeSpotter.drawSPIFFSJpeg("/splash.jpg", 30, 75);
-
+  planeSpotter.setTextColor(TFT_WHITE, TFT_BLACK);
+  planeSpotter.setTextAlignment(CENTER);
+  planeSpotter.drawString(160, 200, "     Connecting to WiFi..     ");
   
   
   WiFiManager wifiManager;
@@ -111,7 +118,9 @@ void setup() {
   locator.updateLocation();
   mapCenter.lat = locator.getLat().toFloat();
   mapCenter.lon = locator.getLon().toFloat();
-  
+  planeSpotter.setTextColor(TFT_WHITE, TFT_BLACK);
+  planeSpotter.setTextAlignment(CENTER);
+  planeSpotter.drawString(160, 200, "          Loading map...          ");
   geoMap.downloadMap(mapCenter, MAP_SCALE, _downloadCallback);
   
 }
@@ -146,7 +155,7 @@ void loop() {
 
 void downloadCallback(String filename, uint32_t bytesDownloaded, uint32_t bytesTotal) {
   Serial.println(String(bytesDownloaded) + " / " + String(bytesTotal));
-  int width = 320 - 2 * 10;
+  int width = 320;
   int progress = width * bytesDownloaded / bytesTotal;
   tft.fillRect(10, 220, progress, 5, TFT_WHITE);
   planeSpotter.drawSPIFFSJpeg("/plane.jpg", 15 + progress, 220 - 15);

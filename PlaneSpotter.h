@@ -43,6 +43,10 @@ See more at https://blog.squix.org
 #define TFT_YELLOW  0xFFE0  
 #define TFT_WHITE   0xFFFF
 
+enum TextAlignment {
+  LEFT, CENTER, RIGHT
+};
+
 class PlaneSpotter {
   public:
     PlaneSpotter(Adafruit_ILI9341* tft, GeoMap* geoMap);
@@ -57,6 +61,16 @@ class PlaneSpotter {
 
     void drawAircraftHistory(AircraftHistory history);
 
+    void drawString(int x, int y, char *text);
+    
+    void drawString(int x, int y, String text);
+    
+    void setTextAlignment(TextAlignment alignment);
+    
+    void setTextColor(uint16_t c);
+    
+    void setTextColor(uint16_t c, uint16_t bg);
+
   private:
     Adafruit_ILI9341* tft_;
     GeoMap* geoMap_;
@@ -66,6 +80,9 @@ class PlaneSpotter {
     int planeDeg_[5] = {0, 130, 180, 230, 0};
     int planeRadius_[5] = {10, 10, 3, 10, 10};
     int planeDots_ = 5;
+    TextAlignment alignment_ = LEFT;
+    uint16_t textColor_;
+    uint16_t backgroundColor_;
 
 
 

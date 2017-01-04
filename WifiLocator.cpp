@@ -93,6 +93,7 @@ void WifiLocator::doUpdate(String query) {
     while((size = client.available()) > 0) {
       c = client.read();
       if (c == '{' || c == '[') {
+        Serial.print(c);
         isBody = true;
       }
       if (isBody) {

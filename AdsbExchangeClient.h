@@ -77,6 +77,7 @@ class AdsbExchangeClient: public JsonListener {
     Aircraft aircrafts[MAX_AIRCRAFTS];
     AircraftHistory histories[MAX_AIRCRAFTS];
     long lastSightingMillis = 0;
+    int trailIndex = 0;
 
   public:
     AdsbExchangeClient();

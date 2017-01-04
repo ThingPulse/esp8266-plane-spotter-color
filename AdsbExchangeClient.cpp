@@ -123,6 +123,8 @@ void AdsbExchangeClient::value(String value) {
       counter++;
       index = counter - 1;
       aircrafts[index] = {};
+      histories[index] = {};
+      trailIndex = 0;
     } 
   } else if (currentKey == "From") {
     aircrafts[index].from = value;
@@ -157,7 +159,21 @@ void AdsbExchangeClient::value(String value) {
     aircrafts[index].call = value;
   } else if (currentKey == "PosStale") {
     aircrafts[index].posStall = (value == "true");
-  }else if (currentKey == "Trt") {
+  } else if (currentKey == "Cos") {
+    if (trailIndex % 3 < 2) {
+      History history = histories[i];
+      Coordinate coordinate = history.coordinates[history.counter];
+      if (trailIndex % 3 == 0) {
+        coordinate.lat = value.toFloat();
+      } else if (trailIndex % 3 == 1) {
+        coordinate.lon = value.toFloat();
+        history.counter++;
+      }
+      history.coordinates[history.counter] = coordinates;
+      histories[i] = history;
+    }
+    trailIndex++;
+  } else if (currentKey == "Trt") {
     if(aircrafts[index].posStall) {
       Serial.println("This aircraft is stalled. Ignoring it");
       counter--;

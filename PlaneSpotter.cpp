@@ -107,10 +107,11 @@ void PlaneSpotter::drawPlane(Aircraft aircraft, boolean isSpecial) {
   coordinates.lon = aircraft.lon;
   coordinates.lat = aircraft.lat;  
   CoordinatesPixel p = geoMap_->convertToPixel(coordinates);
-  tft_->setTextWrap(false);
-  tft_->setTextColor(TFT_WHITE, TFT_BLACK);
-  tft_->setCursor(p.x + 8,p.y - 5);
-  tft_->print(aircraft.call);
+  
+  setTextColor(TFT_WHITE, TFT_BLACK);
+  setTextAlignment(LEFT);
+  drawString(p.x + 8,p.y - 5, aircraft.call);
+  
   int planeDotsX[planeDots_];
   int planeDotsY[planeDots_];
   //isSpecial = false;
@@ -129,26 +130,82 @@ void PlaneSpotter::drawPlane(Aircraft aircraft, boolean isSpecial) {
 }
 
 void PlaneSpotter::drawInfoBox(Aircraft closestAircraft) {
+  int line1 = geoMap_->getMapHeight() + 18;
+  int line2 = geoMap_->getMapHeight() + 27;
+  int line3 = geoMap_->getMapHeight() + 36;
+  int right = tft_->getWidth() - 3;
+
   tft_->fillRect(0, geoMap_->getMapHeight() + 10, tft_->width(), tft_->height() - geoMap_->getMapHeight()-10, TFT_BLACK);
-  tft_->setTextWrap(true);
-  tft_->setCursor(0, geoMap_->getMapHeight() + 12);
-  tft_->setTextColor(TFT_YELLOW);
-  tft_->print(closestAircraft.call);
-  tft_->setTextColor(TFT_GREEN);
-  tft_->print(" Speed: " + String(closestAircraft.speed, 0));
-  tft_->setTextColor(TFT_YELLOW);
-  tft_->print(" Dst: " + String(closestAircraft.distance, 2) + "km");
-  tft_->setTextColor(TFT_WHITE);
-  tft_->print(" Alt: " + closestAircraft.altitude + "ft\n");
-  tft_->setTextColor(TFT_WHITE);
-  tft_->print("Type: " + closestAircraft.aircraftType);
-  tft_->setTextColor(TFT_YELLOW);
-  tft_->print(" Heading: " + String(closestAircraft.heading, 0));
-  tft_->setTextColor(TFT_GREEN);
+  setTextAlignment(LEFT);
+  setTextColor(TFT_WHITE);
+  drawString(0, line1, closestAircraft.call);
+  
+  setTextAlignment(RIGHT);
+  drawString(right, line1, closestAircraft.aircraftType);
+  
+  setTextColor(TFT_YELLOW);
+  setTextAlignment(LEFT);
+  drawString(0, line2, "Alt: " + closestAircraft.altitude + "ft");
+  
+
+  setTextAlignment(CENTER);
+  drawString(tft_->getWidth() / 2, line2, "Spd: " + String(closestAircraft.speed, 0) + "kn");
+  
+  setTextAlignment(RIGHT);
+  drawString(right, line2, " Heading: " + String(closestAircraft.heading, 0));
+
+  setTextColor(TFT_GREEN);
+  setTextAlignment(LEFT);
+  drawString(0, line3, "Dst: " + String(closestAircraft.distance, 2) + "km");
+
   if (closestAircraft.fromShort != "" && closestAircraft.toShort != "") {
-    tft_->print("\nFrom: " + closestAircraft.fromShort + "=>" + closestAircraft.toShort);
+    setTextAlignment(RIGHT);
+    drawString(right, line3, "From: " + closestAircraft.fromShort + "=>" + closestAircraft.toShort);
   }
  
 }
 
+void PlaneSpotter::drawString(int x, int y, char *text) {
+  int16_t x1, y1;
+  uint16_t w, h;
+  tft_->setTextWrap(false);
+  tft_->getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
+  Serial.println(String(w) + ", " + String(h));
+  switch (alignment_) {
+    case LEFT:
+      x1 = x;
+      break;
+    case CENTER:
+      x1 = x - w / 2;
+      break;
+    case RIGHT:
+      x1 = x - w;
+      break;
+  }
+  Serial.println(String(x1) + ", " + String(y-h-1) + ", " + String(w+1) + ", " + String(h + 1));
+  if (textColor_ != backgroundColor_) {
+    tft_->fillRect(x1, y - h -1, w + 2, h + 2, backgroundColor_);
+  }
+  tft_->setCursor(x1, y);
+  tft_->print(text);
+}
+
+void PlaneSpotter::drawString(int x, int y, String text) {
+  char buf[text.length()+2];
+  text.toCharArray(buf, text.length() + 1);
+  drawString(x, y, buf);
+}
+
+void PlaneSpotter::setTextColor(uint16_t c) {
+  setTextColor(c, c);
+}
+void PlaneSpotter::setTextColor(uint16_t c, uint16_t bg) {
+  textColor_ = c;
+  backgroundColor_ = bg;
+  tft_->setTextColor(textColor_, backgroundColor_);
+}
+
+void PlaneSpotter::setTextAlignment(TextAlignment alignment) {
+  alignment_ = alignment;
+}
 
