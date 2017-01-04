@@ -88,14 +88,15 @@ void PlaneSpotter::drawAircraftHistory(AircraftHistory history) {
     
     for (int j = 0; j < min(history.counter, MAX_HISTORY); j++) {
 
-      int historyIndex = (history.counter - j - 1) % MAX_HISTORY;
-      Coordinates coordinates = history.coordinates[historyIndex];
+      AircraftPosition position = history.positions[j];
+      Coordinates coordinates = position.coordinates;
       CoordinatesPixel p1 = geoMap_->convertToPixel(coordinates);
 
       if (j > 0) {
         CoordinatesPixel p2 = geoMap_->convertToPixel(lastCoordinates);
-
-        tft_->drawLine(p1.x, p1.y, p2.x, p2.y, TFT_BLUE);
+        uint16_t color = heightPalette_[min(position.altitude / 4000, 9)];
+        tft_->drawLine(p1.x, p1.y, p2.x, p2.y, color);
+        //drawString(p1.x, p1.y, String(j));
       }
       lastCoordinates = coordinates;
       // Serial.println(String(j) + ". " + String(historyIndex) + ". " + String(coordinates.lat) + ", " + String(coordinates.lon));
@@ -134,33 +135,34 @@ void PlaneSpotter::drawInfoBox(Aircraft closestAircraft) {
   int line2 = geoMap_->getMapHeight() + 27;
   int line3 = geoMap_->getMapHeight() + 36;
   int right = tft_->getWidth() - 3;
-
   tft_->fillRect(0, geoMap_->getMapHeight() + 10, tft_->width(), tft_->height() - geoMap_->getMapHeight()-10, TFT_BLACK);
-  setTextAlignment(LEFT);
-  setTextColor(TFT_WHITE);
-  drawString(0, line1, closestAircraft.call);
-  
-  setTextAlignment(RIGHT);
-  drawString(right, line1, closestAircraft.aircraftType);
-  
-  setTextColor(TFT_YELLOW);
-  setTextAlignment(LEFT);
-  drawString(0, line2, "Alt: " + closestAircraft.altitude + "ft");
-  
-
-  setTextAlignment(CENTER);
-  drawString(tft_->getWidth() / 2, line2, "Spd: " + String(closestAircraft.speed, 0) + "kn");
-  
-  setTextAlignment(RIGHT);
-  drawString(right, line2, " Heading: " + String(closestAircraft.heading, 0));
-
-  setTextColor(TFT_GREEN);
-  setTextAlignment(LEFT);
-  drawString(0, line3, "Dst: " + String(closestAircraft.distance, 2) + "km");
-
-  if (closestAircraft.fromShort != "" && closestAircraft.toShort != "") {
+  if (closestAircraft.call != "") {
+    setTextAlignment(LEFT);
+    setTextColor(TFT_WHITE);
+    drawString(0, line1, closestAircraft.call);
+    
     setTextAlignment(RIGHT);
-    drawString(right, line3, "From: " + closestAircraft.fromShort + "=>" + closestAircraft.toShort);
+    drawString(right, line1, closestAircraft.aircraftType);
+    
+    setTextColor(TFT_YELLOW);
+    setTextAlignment(LEFT);
+    drawString(0, line2, "Alt: " + String(closestAircraft.altitude) + "ft");
+    
+  
+    setTextAlignment(CENTER);
+    drawString(tft_->getWidth() / 2, line2, "Spd: " + String(closestAircraft.speed, 0) + "kn");
+    
+    setTextAlignment(RIGHT);
+    drawString(right, line2, " Heading: " + String(closestAircraft.heading, 0));
+  
+    setTextColor(TFT_GREEN);
+    setTextAlignment(LEFT);
+    drawString(0, line3, "Dst: " + String(closestAircraft.distance, 2) + "km");
+  
+    if (closestAircraft.fromShort != "" && closestAircraft.toShort != "") {
+      setTextAlignment(RIGHT);
+      drawString(right, line3, "From: " + closestAircraft.fromShort + "=>" + closestAircraft.toShort);
+    }
   }
  
 }
@@ -170,7 +172,6 @@ void PlaneSpotter::drawString(int x, int y, char *text) {
   uint16_t w, h;
   tft_->setTextWrap(false);
   tft_->getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
-  Serial.println(String(w) + ", " + String(h));
   switch (alignment_) {
     case LEFT:
       x1 = x;
@@ -182,9 +183,8 @@ void PlaneSpotter::drawString(int x, int y, char *text) {
       x1 = x - w;
       break;
   }
-  Serial.println(String(x1) + ", " + String(y-h-1) + ", " + String(w+1) + ", " + String(h + 1));
   if (textColor_ != backgroundColor_) {
-    tft_->fillRect(x1, y - h -1, w + 2, h + 2, backgroundColor_);
+    tft_->fillRect(x1, y - h -1, w + 2, h + 3, backgroundColor_);
   }
   tft_->setCursor(x1, y);
   tft_->print(text);

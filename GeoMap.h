@@ -54,6 +54,7 @@ class GeoMap {
     void downloadMap(Coordinates mapCenter, long scale);
     String getMapName();
     CoordinatesPixel convertToPixel(Coordinates coordinates);
+    Coordinates convertToCoordinates(CoordinatesPixel coordinatesPixel);
     void downloadFile(String url, String filename, ProgressCallback progressCallback);
     void downloadFile(String url, String filename);
     int getMapWidth();

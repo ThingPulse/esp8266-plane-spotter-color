@@ -34,15 +34,19 @@ See more at http://blog.squix.ch
 
 #define MAX_AIRCRAFTS 10
 #define MAX_HISTORY 20
+#define MAX_HISTORY_TEMP 40
 
 #define MAX_AGE_MILLIS 15000
 #define min(a,b) ((a)<(b)?(a):(b))
 
-
+struct AircraftPosition {
+  int altitude;
+  Coordinates coordinates;
+};
 
 struct AircraftHistory {
   String call;
-  Coordinates coordinates[MAX_HISTORY];
+  AircraftPosition positions[MAX_HISTORY];
   int counter;
 };
 
@@ -56,7 +60,7 @@ struct Aircraft {
     double speed;
     double lat;
     double lon;
-    String altitude;
+    uint16_t altitude;
     double distance;
     String aircraftType;
     String operatorCode;
@@ -76,6 +80,7 @@ class AdsbExchangeClient: public JsonListener {
     String currentKey = "";
     Aircraft aircrafts[MAX_AIRCRAFTS];
     AircraftHistory histories[MAX_AIRCRAFTS];
+    AircraftPosition positionTemp[MAX_HISTORY_TEMP];
     long lastSightingMillis = 0;
     int trailIndex = 0;
 

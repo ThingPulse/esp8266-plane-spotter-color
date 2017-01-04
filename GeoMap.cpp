@@ -53,11 +53,20 @@ String GeoMap::getMapName() {
 }
 
 CoordinatesPixel GeoMap::convertToPixel(Coordinates coordinates) {
+  // magic formula from here: http://gis.stackexchange.com/questions/60752/how-to-calculate-the-bounding-box-by-a-given-center-and-scale-in-android
   double resolution =  1 / ((1.0 / scale_) * 4374754 * 72);
   CoordinatesPixel pixel;
   pixel.x = ((coordinates.lon - mapCenter_.lon) / resolution) + (mapWidth_ / 2);
   pixel.y = ((mapCenter_.lat - coordinates.lat) / resolution) + (mapHeight_ / 2);
   return pixel;
+}
+
+Coordinates GeoMap::convertToCoordinates(CoordinatesPixel coordinatesPixel) {
+   double resolution =  1 / ((1.0 / scale_) * 4374754 * 72);
+   Coordinates coordinates;
+   coordinates.lon = mapCenter_.lon + ((coordinatesPixel.x - mapWidth_/ 2) * resolution);
+   coordinates.lat = mapCenter_.lat - ((coordinatesPixel.y - mapHeight_/2) * resolution);
+   return coordinates;
 }
 
 

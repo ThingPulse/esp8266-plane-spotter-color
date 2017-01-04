@@ -124,7 +124,11 @@ void AdsbExchangeClient::value(String value) {
       index = counter - 1;
       aircrafts[index] = {};
       histories[index] = {};
+      
       trailIndex = 0;
+      for (int i = 0; i < MAX_HISTORY_TEMP; i++) {
+         positionTemp[i] = {};
+      }
     } 
   } else if (currentKey == "From") {
     aircrafts[index].from = value;
@@ -145,7 +149,7 @@ void AdsbExchangeClient::value(String value) {
   } else if (currentKey == "Trak") {
     aircrafts[index].heading = value.toFloat();
   } else if (currentKey == "Alt") {
-    aircrafts[index].altitude = value;
+    aircrafts[index].altitude = value.toInt();;
   } else if (currentKey == "Lat") {
     aircrafts[index].lat = value.toFloat();
   } else if (currentKey == "Long") {
@@ -160,19 +164,22 @@ void AdsbExchangeClient::value(String value) {
   } else if (currentKey == "PosStale") {
     aircrafts[index].posStall = (value == "true");
   } else if (currentKey == "Cos") {
-    if (trailIndex % 3 < 2) {
-      History history = histories[i];
-      Coordinate coordinate = history.coordinates[history.counter];
-      if (trailIndex % 3 == 0) {
-        coordinate.lat = value.toFloat();
-      } else if (trailIndex % 3 == 1) {
-        coordinate.lon = value.toFloat();
-        history.counter++;
+    int tempIndex = trailIndex / 4;
+    if (tempIndex < MAX_HISTORY_TEMP) {
+      AircraftPosition position = positionTemp[tempIndex];
+      Coordinates coordinates = position.coordinates;
+      if (trailIndex % 4 == 0) {
+        coordinates.lat = value.toFloat();
+      } else if (trailIndex % 4 == 1) {
+        coordinates.lon = value.toFloat();
+      } else if (trailIndex % 4 == 3) {
+        position.altitude = value.toInt();
       }
-      history.coordinates[history.counter] = coordinates;
-      histories[i] = history;
+      position.coordinates = coordinates;
+      positionTemp[tempIndex] = position;
+      trailIndex++;
     }
-    trailIndex++;
+
   } else if (currentKey == "Trt") {
     if(aircrafts[index].posStall) {
       Serial.println("This aircraft is stalled. Ignoring it");
@@ -213,7 +220,24 @@ Aircraft AdsbExchangeClient::getClosestAircraft(double lat, double lon) {
 }
 
 void AdsbExchangeClient::endArray() {
-
+  if (currentKey == "Cos" && trailIndex > 0) {
+    AircraftHistory history = histories[index];
+    uint16_t items = (trailIndex / 4);
+    Serial.println("Finished history array: " + String(items) + " elements");
+    for (int i = 0; i < min(items, MAX_HISTORY); i++) {
+      AircraftPosition position = history.positions[i];
+      Coordinates coordinates = position.coordinates;
+      coordinates.lat = positionTemp[items - i - 1].coordinates.lat;
+      coordinates.lon = positionTemp[items - i - 1].coordinates.lon;
+      position.coordinates = coordinates;
+      position.altitude = positionTemp[items - i - 1].altitude;
+      history.positions[i] = position;
+      Serial.println(String(i) + ": " + String(items - i -1) + ", " + String(history.positions[i].coordinates.lat, 9) + ", " + String(history.positions[i].coordinates.lon, 9));
+    }
+    history.counter = items;
+    histories[index] = history;
+    currentKey = "";
+  }
 }
 
 void AdsbExchangeClient::endObject() {
@@ -221,7 +245,7 @@ void AdsbExchangeClient::endObject() {
 }
 
 void AdsbExchangeClient::endDocument() {
-  Serial.println("Number of aircrafts: " + String(getNumberOfAircrafts()));
+  /*Serial.println("Number of aircrafts: " + String(getNumberOfAircrafts()));
   for(int i = 0; i < getNumberOfAircrafts(); i++) {
     
     Aircraft aircraft = aircrafts[i];
@@ -269,7 +293,7 @@ void AdsbExchangeClient::endDocument() {
       histories[matchPosition] = history;
     }
 
-  }
+  }*/
 }
 
 void AdsbExchangeClient::startArray() {
