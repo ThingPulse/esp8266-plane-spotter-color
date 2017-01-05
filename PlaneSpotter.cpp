@@ -83,21 +83,21 @@ void PlaneSpotter::renderJPEG(int xpos, int ypos) {
 
 }
 
-void PlaneSpotter::drawAircraftHistory(AircraftHistory history) {
+void PlaneSpotter::drawAircraftHistory(Aircraft aircraft, AircraftHistory history) {
     Coordinates lastCoordinates;
-    
+    lastCoordinates.lat = aircraft.lat;
+    lastCoordinates.lon = aircraft.lon;
     for (int j = 0; j < min(history.counter, MAX_HISTORY); j++) {
 
       AircraftPosition position = history.positions[j];
       Coordinates coordinates = position.coordinates;
       CoordinatesPixel p1 = geoMap_->convertToPixel(coordinates);
 
-      if (j > 0) {
-        CoordinatesPixel p2 = geoMap_->convertToPixel(lastCoordinates);
-        uint16_t color = heightPalette_[min(position.altitude / 4000, 9)];
-        tft_->drawLine(p1.x, p1.y, p2.x, p2.y, color);
-        //drawString(p1.x, p1.y, String(j));
-      }
+      CoordinatesPixel p2 = geoMap_->convertToPixel(lastCoordinates);
+      uint16_t color = heightPalette_[min(position.altitude / 4000, 9)];
+      tft_->drawLine(p1.x, p1.y, p2.x, p2.y, color);
+      tft_->drawLine(p1.x+1, p1.y+1, p2.x+1, p2.y+1, color);
+
       lastCoordinates = coordinates;
       // Serial.println(String(j) + ". " + String(historyIndex) + ". " + String(coordinates.lat) + ", " + String(coordinates.lon));
     }

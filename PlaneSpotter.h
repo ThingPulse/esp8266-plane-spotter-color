@@ -59,7 +59,7 @@ class PlaneSpotter {
 
     void drawInfoBox(Aircraft closestAircraft);
 
-    void drawAircraftHistory(AircraftHistory history);
+    void drawAircraftHistory(Aircraft aircraft, AircraftHistory history);
 
     void drawString(int x, int y, char *text);
     
