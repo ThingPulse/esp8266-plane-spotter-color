@@ -54,15 +54,15 @@ String GeoMap::getMapName() {
 
 CoordinatesPixel GeoMap::convertToPixel(Coordinates coordinates) {
   // magic formula from here: http://gis.stackexchange.com/questions/60752/how-to-calculate-the-bounding-box-by-a-given-center-and-scale-in-android
-  double resolution =  1 / ((1.0 / scale_) * 4374754 * 72);
+  double resolution =  scale_ / (4374754.0 * 72.0);
   CoordinatesPixel pixel;
-  pixel.x = ((coordinates.lon - mapCenter_.lon) / resolution) + (mapWidth_ / 2);
-  pixel.y = ((mapCenter_.lat - coordinates.lat) / resolution) + (mapHeight_ / 2);
+  pixel.x = ((coordinates.lon - mapCenter_.lon) / (scale_ / (4374754.0 * 72.0))) + (mapWidth_ / 2);
+  pixel.y = ((mapCenter_.lat - coordinates.lat) / (scale_ / (4374754.0 * 72.0))) + (mapHeight_ / 2);
   return pixel;
 }
 
 Coordinates GeoMap::convertToCoordinates(CoordinatesPixel coordinatesPixel) {
-   double resolution =  1 / ((1.0 / scale_) * 4374754 * 72);
+   double resolution =  scale_ / ( /*4374754.0*/ 156543.034 * 72);
    Coordinates coordinates;
    coordinates.lon = mapCenter_.lon + ((coordinatesPixel.x - mapWidth_/ 2) * resolution);
    coordinates.lat = mapCenter_.lat - ((coordinatesPixel.y - mapHeight_/2) * resolution);
@@ -79,7 +79,7 @@ void GeoMap::downloadFile(String url, String filename, ProgressCallback progress
 
     if (SPIFFS.exists(filename) == true) {
       Serial.println("File already exists. Skipping");
-      //return;
+      return;
     }
     // wait for WiFi connection
     ESP8266WiFiMulti _wifiMulti;
