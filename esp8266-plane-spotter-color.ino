@@ -133,9 +133,9 @@ void setup() {
 
 
 void loop() {
-
+  Serial.println("Heap: " + String(ESP.getFreeHeap()));
   adsbClient.updateVisibleAircraft(QUERY_STRING + "&lat=" + String(mapCenter.lat, 6) + "&lng=" + String(mapCenter.lon, 6));
-    
+  
   long startMillis = millis();
   planeSpotter.drawSPIFFSJpeg(geoMap.getMapName(), 0, 0);
 
@@ -143,9 +143,11 @@ void loop() {
   Aircraft closestAircraft = adsbClient.getClosestAircraft(mapCenter.lat, mapCenter.lon);
   for (int i = 0; i < adsbClient.getNumberOfAircrafts(); i++) {
     Aircraft aircraft = adsbClient.getAircraft(i);
-    planeSpotter.drawPlane(aircraft, aircraft.call == closestAircraft.call);
     AircraftHistory history = adsbClient.getAircraftHistory(i);
-    planeSpotter.drawAircraftHistory(history);
+    planeSpotter.drawAircraftHistory(aircraft, history);
+    planeSpotter.drawPlane(aircraft, aircraft.call == closestAircraft.call);
+
+
   }
   planeSpotter.drawInfoBox(closestAircraft);
 
