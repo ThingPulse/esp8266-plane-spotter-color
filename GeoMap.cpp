@@ -37,36 +37,64 @@ int GeoMap::getMapHeight() {
   return mapHeight_;
 }
 
-void GeoMap::downloadMap(Coordinates mapCenter, long scale) {
-  downloadMap(mapCenter, scale, nullptr);
+void GeoMap::downloadMap(Coordinates mapCenter, int zoom) {
+  downloadMap(mapCenter, zoom, nullptr);
 }
 
-void GeoMap::downloadMap(Coordinates mapCenter, long scale, ProgressCallback progressCallback) {
+void GeoMap::downloadMap(Coordinates mapCenter, int zoom, ProgressCallback progressCallback) {
   mapCenter_= mapCenter;
-  scale_ = scale;
+  zoom_ = zoom;
   downloadFile("http://open.mapquestapi.com/staticmap/v4/getmap?key=" + mapQuestApiKey_ + "&type=map&scalebar=false&size=" 
-    + String(mapWidth_) + "," + String(mapHeight_) + "&scale=" + String(scale_) + "&center="+ String(mapCenter_.lat) + "," + String(mapCenter_.lon), getMapName(), progressCallback);
+    + String(mapWidth_) + "," + String(mapHeight_) + "&zoom=" + String(zoom_) + "&center="+ String(mapCenter_.lat) + "," + String(mapCenter_.lon), getMapName(), progressCallback);
 }
 
 String GeoMap::getMapName() {
-  return "map" + String(mapCenter_.lat) + "_" + String(mapCenter_.lon) + "_" + String(scale_) + ".jpg";
+  return "map" + String(mapCenter_.lat) + "_" + String(mapCenter_.lon) + "_" + String(zoom_) + ".jpg";
 }
 
 CoordinatesPixel GeoMap::convertToPixel(Coordinates coordinates) {
-  // magic formula from here: http://gis.stackexchange.com/questions/60752/how-to-calculate-the-bounding-box-by-a-given-center-and-scale-in-android
-  double resolution =  scale_ / (4374754.0 * 72.0);
-  CoordinatesPixel pixel;
-  pixel.x = ((coordinates.lon - mapCenter_.lon) / (scale_ / (4374754.0 * 72.0))) + (mapWidth_ / 2);
-  pixel.y = ((mapCenter_.lat - coordinates.lat) / (scale_ / (4374754.0 * 72.0))) + (mapHeight_ / 2);
-  return pixel;
+  CoordinatesTiles centerTile = convertToTiles(mapCenter_);
+  CoordinatesTiles poiTile = convertToTiles(coordinates);
+  CoordinatesPixel poiPixel;
+  poiPixel.x = (poiTile.x - centerTile.x) * MAPQUEST_TILE_LENGTH + mapWidth_ / 2;
+  poiPixel.y = (poiTile.y - centerTile.y) * MAPQUEST_TILE_LENGTH + mapHeight_ / 2;
+  return poiPixel;
 }
 
-Coordinates GeoMap::convertToCoordinates(CoordinatesPixel coordinatesPixel) {
-   double resolution =  scale_ / ( /*4374754.0*/ 156543.034 * 72);
-   Coordinates coordinates;
-   coordinates.lon = mapCenter_.lon + ((coordinatesPixel.x - mapWidth_/ 2) * resolution);
-   coordinates.lat = mapCenter_.lat - ((coordinatesPixel.y - mapHeight_/2) * resolution);
-   return coordinates;
+CoordinatesTiles GeoMap::convertToTiles(Coordinates coordinates) {
+  
+  double lon_rad = coordinates.lon * PI / 180;
+  double lat_rad = coordinates.lat * PI / 180;;
+  double n = pow(2.0, zoom_);
+
+  CoordinatesTiles tile;
+  tile.x = ((coordinates.lon + 180) / 360) * n;
+  tile.y = (1 - (log(tan(lat_rad) + 1.0/cos(lat_rad)) / PI)) * n / 2.0;
+  
+  return tile;
+}
+
+Coordinates GeoMap::convertToCoordinatesFromTiles(CoordinatesTiles tiles) {
+  Coordinates result;
+
+  double n = pow(2.0, zoom_);
+
+  
+  result.lon = (360 * tiles.x / n)  - 180;
+  result.lat = 180 / PI * (atan(sinh(PI * (1 - 2 * tiles.y / n))));
+
+  return result;
+}
+
+Coordinates GeoMap::convertToCoordinates(CoordinatesPixel poiPixel) {
+  CoordinatesTiles centerTile = convertToTiles(mapCenter_);
+  CoordinatesTiles poiTile;
+  Serial.println(String(centerTile.x, 9) + ", " + String(centerTile.y, 9));
+  poiTile.x = ((poiPixel.x - (mapWidth_ / 2.0)) / MAPQUEST_TILE_LENGTH) + centerTile.x;
+  poiTile.y = ((poiPixel.y - (mapHeight_ / 2.0)) / MAPQUEST_TILE_LENGTH) + centerTile.y;
+  Serial.println(String(poiTile.x, 9) + ", " + String(poiTile.y, 9));
+  Coordinates poiCoordinates = convertToCoordinatesFromTiles(poiTile);
+  return poiCoordinates;
 }
 
 

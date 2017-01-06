@@ -55,7 +55,7 @@ See more at http://blog.squix.ch
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 WifiLocator locator;
 AdsbExchangeClient adsbClient;
-GeoMap geoMap(MAP_QUEST_API_KEY, 320, 200);
+GeoMap geoMap(MAP_QUEST_API_KEY, MAP_WIDTH, MAP_HEIGHT);
 PlaneSpotter planeSpotter(&tft, &geoMap);
 
 
@@ -66,10 +66,13 @@ Coordinates mapCenter;
 // lat=47.424341887&lng=8.56877803&fDstL=0&fDstU=10&fAltL=0&fAltL=1500&fAltU=10000
 //const String QUERY_STRING = "fDstL=0&fDstU=20&fAltL=0&fAltL=1000&fAltU=10000";
 // airport zürich is on 1410ft => hide landed airplanes
-const String QUERY_STRING = "fDstL=0&fDstU=20&fAltL=1500&trFmt=sa";
+const String QUERY_STRING = "fAltL=1500&trFmt=sa";
 
 void downloadCallback(String filename, uint32_t bytesDownloaded, uint32_t bytesTotal);
 ProgressCallback _downloadCallback = downloadCallback;
+
+Coordinates northWestBound;
+Coordinates southEastBound;
 
 
 void setup() {
@@ -122,19 +125,17 @@ void setup() {
   planeSpotter.setTextColor(TFT_WHITE, TFT_BLACK);
   planeSpotter.setTextAlignment(CENTER);
   planeSpotter.drawString(160, 200, "          Loading map...          ");
-  geoMap.downloadMap(mapCenter, MAP_SCALE, _downloadCallback);
-  CoordinatesPixel c1;
-  c1.x = 10;
-  c1.y = 20;
-  CoordinatesPixel c2 = geoMap.convertToPixel(geoMap.convertToCoordinates(c1));
-  Serial.print(String(c2.x) + ", " + String(c2.y));
+  geoMap.downloadMap(mapCenter, MAP_ZOOM, _downloadCallback);
+
+  northWestBound = geoMap.convertToCoordinates({0,0});
+  southEastBound = geoMap.convertToCoordinates({MAP_WIDTH, MAP_HEIGHT});
   
 }
 
 
 void loop() {
   Serial.println("Heap: " + String(ESP.getFreeHeap()));
-  adsbClient.updateVisibleAircraft(QUERY_STRING + "&lat=" + String(mapCenter.lat, 6) + "&lng=" + String(mapCenter.lon, 6));
+  adsbClient.updateVisibleAircraft(QUERY_STRING + "&lat=" + String(mapCenter.lat, 6) + "&lng=" + String(mapCenter.lon, 6) + "&fNBnd=" + String(northWestBound.lat, 9) + "&fWBnd=" + String(northWestBound.lon, 9) + "&fSBnd=" + String(southEastBound.lat, 9) + "&fEBnd=" + String(southEastBound.lon, 9));
   
   long startMillis = millis();
   planeSpotter.drawSPIFFSJpeg(geoMap.getMapName(), 0, 0);
@@ -154,6 +155,7 @@ void loop() {
   // Draw center of map
   CoordinatesPixel p = geoMap.convertToPixel(mapCenter);
   tft.fillCircle(p.x, p.y, 2, TFT_BLUE); 
+
   Serial.println(String(millis()-startMillis) + "ms for drawing");
   delay(2000);
 

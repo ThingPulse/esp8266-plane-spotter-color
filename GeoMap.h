@@ -29,6 +29,8 @@ See more at https://blog.squix.org
 #include <ESP8266WiFiMulti.h>
 #include <ESP8266HTTPClient.h>
 
+#define MAPQUEST_TILE_LENGTH 256.0
+
 typedef void (*ProgressCallback)(String fileName, uint32_t bytesDownloaded, uint32_t bytesTotal);
 
 struct Coordinates {
@@ -41,20 +43,27 @@ struct CoordinatesPixel {
   int y;
 };
 
+struct CoordinatesTiles {
+  double x;
+  double y;
+};
+
 class GeoMap {
   private:
     String mapQuestApiKey_;
     int mapWidth_, mapHeight_;
-    long scale_;
+    long zoom_;
     Coordinates mapCenter_;
 
   public:
     GeoMap(String mapQuestApiKey, int mapWidth, int mapHeight);
-    void downloadMap(Coordinates mapCenter, long scale, ProgressCallback progressCallback);
-    void downloadMap(Coordinates mapCenter, long scale);
+    void downloadMap(Coordinates mapCenter, int zoom, ProgressCallback progressCallback);
+    void downloadMap(Coordinates mapCenter, int zoom);
     String getMapName();
     CoordinatesPixel convertToPixel(Coordinates coordinates);
     Coordinates convertToCoordinates(CoordinatesPixel coordinatesPixel);
+    CoordinatesTiles convertToTiles(Coordinates coordinates);
+    Coordinates convertToCoordinatesFromTiles(CoordinatesTiles tiles);
     void downloadFile(String url, String filename, ProgressCallback progressCallback);
     void downloadFile(String url, String filename);
     int getMapWidth();
