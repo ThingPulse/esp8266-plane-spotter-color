@@ -36,8 +36,8 @@ See more at https://blog.squix.org
 // https://developer.mapquest.com/plan_purchase/steps/business_edition/business_edition_free/register
 #define MAP_QUEST_API_KEY "r19I8UVBfwIkmE4EZR9S6yMR43eMiRDZ"
 
-#define MAP_ZOOM 11
+#define MAP_ZOOM 10
 #define MAP_WIDTH 320
-#define MAP_HEIGHT 200
+#define MAP_HEIGHT 192
 
 

@@ -135,7 +135,7 @@ void PlaneSpotter::drawInfoBox(Aircraft closestAircraft) {
   int line2 = geoMap_->getMapHeight() + 27;
   int line3 = geoMap_->getMapHeight() + 36;
   int right = tft_->getWidth() - 3;
-  tft_->fillRect(0, geoMap_->getMapHeight() + 10, tft_->width(), tft_->height() - geoMap_->getMapHeight()-10, TFT_BLACK);
+  tft_->fillRect(0, geoMap_->getMapHeight(), tft_->width(), tft_->height() - geoMap_->getMapHeight(), TFT_BLACK);
   if (closestAircraft.call != "") {
     setTextAlignment(LEFT);
     setTextColor(TFT_WHITE);

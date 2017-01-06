@@ -44,8 +44,10 @@ void GeoMap::downloadMap(Coordinates mapCenter, int zoom) {
 void GeoMap::downloadMap(Coordinates mapCenter, int zoom, ProgressCallback progressCallback) {
   mapCenter_= mapCenter;
   zoom_ = zoom;
-  downloadFile("http://open.mapquestapi.com/staticmap/v4/getmap?key=" + mapQuestApiKey_ + "&type=map&scalebar=false&size=" 
-    + String(mapWidth_) + "," + String(mapHeight_) + "&zoom=" + String(zoom_) + "&center="+ String(mapCenter_.lat) + "," + String(mapCenter_.lon), getMapName(), progressCallback);
+  //downloadFile("http://open.mapquestapi.com/staticmap/v4/getmap?key=" + mapQuestApiKey_ + "&type=map&scalebar=false&size=" 
+  //  + String(mapWidth_) + "," + String(mapHeight_) + "&zoom=" + String(zoom_) + "&center="+ String(mapCenter_.lat) + "," + String(mapCenter_.lon), getMapName(), progressCallback);
+  downloadFile("http://maps.googleapis.com/maps/api/staticmap?center="+ String(mapCenter_.lat) + "," + String(mapCenter_.lon)+"&zoom="+ String(zoom_)+"&size=" 
+    + String(mapWidth_) + "x" + String(mapHeight_)+"&format=jpg-baseline&maptype=roadmap", getMapName(), progressCallback);
 }
 
 String GeoMap::getMapName() {
@@ -107,7 +109,7 @@ void GeoMap::downloadFile(String url, String filename, ProgressCallback progress
 
     if (SPIFFS.exists(filename) == true) {
       Serial.println("File already exists. Skipping");
-      return;
+      //return;
     }
     // wait for WiFi connection
     ESP8266WiFiMulti _wifiMulti;

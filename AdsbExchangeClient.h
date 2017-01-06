@@ -34,7 +34,7 @@ See more at http://blog.squix.ch
 
 #define MAX_AIRCRAFTS 10
 #define MAX_HISTORY 20
-#define MAX_HISTORY_TEMP 40
+#define MAX_HISTORY_TEMP 80
 
 #define MAX_AGE_MILLIS 15000
 #define min(a,b) ((a)<(b)?(a):(b))
