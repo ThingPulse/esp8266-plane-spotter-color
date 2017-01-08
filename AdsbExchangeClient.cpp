@@ -117,9 +117,12 @@ void AdsbExchangeClient::value(String value) {
  "Dst": 6.23,
  "Year": "1996"
  */
-
+  if (counter >= MAX_AIRCRAFTS - 1) {
+    Serial.println("Max Aircrafts reached....");
+    return;
+  }
   if (currentKey == "Id") {
-    if (counter < MAX_AIRCRAFTS) {
+
       counter++;
       index = counter - 1;
       aircrafts[index] = {};
@@ -129,7 +132,7 @@ void AdsbExchangeClient::value(String value) {
       for (int i = 0; i < MAX_HISTORY_TEMP; i++) {
          positionTemp[i] = {};
       }
-    } 
+   
   } else if (currentKey == "From") {
     aircrafts[index].from = value;
     aircrafts[index].fromCode = value.substring(0,4);
@@ -220,12 +223,17 @@ Aircraft AdsbExchangeClient::getClosestAircraft(double lat, double lon) {
 }
 
 void AdsbExchangeClient::endArray() {
+  if (counter >= MAX_AIRCRAFTS - 1) {
+    Serial.println("MAx Aircrafts reached:end array");
+    return;
+  }
   if (currentKey == "Cos" && trailIndex > 0) {
-    AircraftHistory history = histories[index];
+    AircraftHistory history = {};
     uint16_t items = (trailIndex / 4);
     Serial.println("Finished history array: " + String(items) + " elements");
+    int historyCounter = 0;
     for (int i = 0; i < min(items, MAX_HISTORY); i++) {
-      AircraftPosition position = history.positions[i];
+      AircraftPosition position = {};
       Coordinates coordinates = position.coordinates;
       coordinates.lat = positionTemp[items - i - 1].coordinates.lat;
       coordinates.lon = positionTemp[items - i - 1].coordinates.lon;
@@ -233,8 +241,10 @@ void AdsbExchangeClient::endArray() {
       position.altitude = positionTemp[items - i - 1].altitude;
       history.positions[i] = position;
       Serial.println(String(i) + ": " + String(items - i -1) + ", " + String(history.positions[i].coordinates.lat, 9) + ", " + String(history.positions[i].coordinates.lon, 9));
+      historyCounter++;
     }
-    history.counter = items;
+    history.call = aircrafts[index].call;
+    history.counter = historyCounter;
     histories[index] = history;
     currentKey = "";
   }
@@ -245,54 +255,13 @@ void AdsbExchangeClient::endObject() {
 }
 
 void AdsbExchangeClient::endDocument() {
-  /*Serial.println("Number of aircrafts: " + String(getNumberOfAircrafts()));
-  for(int i = 0; i < getNumberOfAircrafts(); i++) {
-    
-    Aircraft aircraft = aircrafts[i];
-    boolean foundMatch = false;
-    int matchPosition = - 1;
-    // Is there already an entnry for this call sign?
-    for (int j = i; j < MAX_AIRCRAFTS; j++) {
-      AircraftHistory history = histories[j];
-      if (history.call == aircraft.call) {
-        matchPosition = j;
-        break;
-      }
-
-    }
-    // No match found. Create a new one
-    if (matchPosition == -1) {
-      Serial.println("No match found, creating a new one at the end of the array");
-      AircraftHistory history;
-      history.call = aircraft.call;
-      history.counter = 0;
-      histories[MAX_AIRCRAFTS - 1] = history;
-      matchPosition = MAX_AIRCRAFTS - 1;
-    }
-    if (i != matchPosition) {
-          Serial.println("Swapping " + String(i) + " and " + String(matchPosition));
-          AircraftHistory temp = histories[i];
-          histories[i] = histories[matchPosition];
-          histories[matchPosition] = temp;
-    }
-    
+  /*Serial.println("End of document:");
+  for (int i = 0; i < getNumberOfAircrafts(); i++) {
     AircraftHistory history = histories[i];
-
-    int previousIndex = (history.counter + MAX_HISTORY - 1) % MAX_HISTORY;
-    Coordinates previousCoordinates = history.coordinates[previousIndex];
-    int historyIndex = history.counter % MAX_HISTORY;
-    Coordinates coordinates = history.coordinates[historyIndex];
-    
-    // only add new points if they are different
-    if (history.counter == 0 || (previousCoordinates.lat != coordinates.lat || previousCoordinates.lon != coordinates.lon)) {
-      coordinates.lat = aircraft.lat;
-      coordinates.lon = aircraft.lon;
-      // Not quite sure why I have to re-assign the coordinates, but it doesn't work otherwise
-      history.coordinates[historyIndex] = coordinates;
-      history.counter++;
-      histories[matchPosition] = history;
+    for (int j = 0; j < history.counter; j++) {
+      AircraftPosition position = history.positions[j];
+      Serial.println(history.call + ": " + String(j) + ". " + String(position.coordinates.lat, 9) + ", " + String(position.coordinates.lon, 9) + ", " + String(position.altitude));
     }
-
   }*/
 }
 

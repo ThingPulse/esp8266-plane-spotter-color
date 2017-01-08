@@ -55,7 +55,8 @@ See more at http://blog.squix.ch
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 WifiLocator locator;
 AdsbExchangeClient adsbClient;
-GeoMap geoMap(MAP_QUEST_API_KEY, MAP_WIDTH, MAP_HEIGHT);
+GeoMap geoMap(MapProvider::Google, GOOGLE_API_KEY, MAP_WIDTH, MAP_HEIGHT);
+//GeoMap geoMap(MapProvider::MapQuest, MAP_QUEST_API_KEY, MAP_WIDTH, MAP_HEIGHT);
 PlaneSpotter planeSpotter(&tft, &geoMap);
 
 

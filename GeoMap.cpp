@@ -24,8 +24,9 @@ See more at http://blog.squix.ch
 */
 #include "GeoMap.h"
 
-GeoMap::GeoMap(String mapQuestApiKey, int mapWidth, int mapHeight) {
-  mapQuestApiKey_ = mapQuestApiKey;
+GeoMap::GeoMap(MapProvider mapProvider, String apiKey, int mapWidth, int mapHeight) {
+  mapProvider_ = mapProvider;
+  apiKey_ = apiKey;
   mapWidth_ = mapWidth;
   mapHeight_ = mapHeight;
 }
@@ -44,10 +45,17 @@ void GeoMap::downloadMap(Coordinates mapCenter, int zoom) {
 void GeoMap::downloadMap(Coordinates mapCenter, int zoom, ProgressCallback progressCallback) {
   mapCenter_= mapCenter;
   zoom_ = zoom;
-  //downloadFile("http://open.mapquestapi.com/staticmap/v4/getmap?key=" + mapQuestApiKey_ + "&type=map&scalebar=false&size=" 
-  //  + String(mapWidth_) + "," + String(mapHeight_) + "&zoom=" + String(zoom_) + "&center="+ String(mapCenter_.lat) + "," + String(mapCenter_.lon), getMapName(), progressCallback);
-  downloadFile("http://maps.googleapis.com/maps/api/staticmap?center="+ String(mapCenter_.lat) + "," + String(mapCenter_.lon)+"&zoom="+ String(zoom_)+"&size=" 
-    + String(mapWidth_) + "x" + String(mapHeight_)+"&format=jpg-baseline&maptype=roadmap", getMapName(), progressCallback);
+  switch(mapProvider_) {
+    case MapProvider::MapQuest:
+      downloadFile("http://open.mapquestapi.com/staticmap/v4/getmap?key=" + apiKey_ + "&type=map&scalebar=false&size=" 
+        + String(mapWidth_) + "," + String(mapHeight_) + "&zoom=" + String(zoom_) + "&center="+ String(mapCenter_.lat) + "," + String(mapCenter_.lon), getMapName(), progressCallback); 
+      break;
+    case MapProvider::Google:
+        downloadFile("http://maps.googleapis.com/maps/api/staticmap?key=" + apiKey_ + "&center="+ String(mapCenter_.lat) + "," + String(mapCenter_.lon)+"&zoom="+ String(zoom_)+"&size=" 
+        + String(mapWidth_) + "x" + String(mapHeight_)+"&format=jpg-baseline&maptype=roadmap", getMapName(), progressCallback);
+        break;
+  }
+
 }
 
 String GeoMap::getMapName() {

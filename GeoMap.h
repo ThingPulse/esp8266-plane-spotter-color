@@ -33,6 +33,11 @@ See more at https://blog.squix.org
 
 typedef void (*ProgressCallback)(String fileName, uint32_t bytesDownloaded, uint32_t bytesTotal);
 
+enum MapProvider {
+  MapQuest,
+  Google  
+};
+
 struct Coordinates {
   double lat;
   double lon;
@@ -50,13 +55,14 @@ struct CoordinatesTiles {
 
 class GeoMap {
   private:
-    String mapQuestApiKey_;
+    MapProvider mapProvider_;
+    String apiKey_;
     int mapWidth_, mapHeight_;
     long zoom_;
     Coordinates mapCenter_;
 
   public:
-    GeoMap(String mapQuestApiKey, int mapWidth, int mapHeight);
+    GeoMap(MapProvider mapProvider, String apiKey, int mapWidth, int mapHeight);
     void downloadMap(Coordinates mapCenter, int zoom, ProgressCallback progressCallback);
     void downloadMap(Coordinates mapCenter, int zoom);
     String getMapName();
