@@ -43,5 +43,7 @@ See more at https://blog.squix.org
 #define MAP_ZOOM 11
 #define MAP_WIDTH 320
 #define MAP_HEIGHT 192
+// How many pixels outside the visible map should planes be requested
+#define MAP_REQUEST_MARGIN 40
 
 

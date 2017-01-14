@@ -208,7 +208,7 @@ int AdsbExchangeClient::getNumberOfAircrafts() {
   return counter;
 }
 
-Aircraft AdsbExchangeClient::getClosestAircraft(double lat, double lon) {
+Aircraft AdsbExchangeClient::getClosestAircraft(Coordinates coordinates) {
   double minDistance = 999999.0;
   Aircraft closestAircraft = aircrafts[0];
   for (int i = 0; i < getNumberOfAircrafts(); i++) {

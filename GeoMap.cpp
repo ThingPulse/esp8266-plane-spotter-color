@@ -120,6 +120,7 @@ void GeoMap::downloadFile(String url, String filename, ProgressCallback progress
       //return;
     }
     // wait for WiFi connection
+    boolean isFirstCall = true;
     ESP8266WiFiMulti _wifiMulti;
     if((_wifiMulti.run() == WL_CONNECTED)) {
         HTTPClient http;
@@ -148,7 +149,7 @@ void GeoMap::downloadFile(String url, String filename, ProgressCallback progress
                 // get lenght of document (is -1 when Server sends no Content-Length header)
                 int total = http.getSize();
                 int len = total;
-                progressCallback(filename, 0,total);
+                progressCallback(filename, 0,total, true);
                 // create buffer for read
                 uint8_t buff[128] = { 0 };
 
@@ -170,7 +171,8 @@ void GeoMap::downloadFile(String url, String filename, ProgressCallback progress
                         if(len > 0) {
                             len -= c;
                         }
-                        progressCallback(filename, total - len,total);
+                        progressCallback(filename, total - len,total, false);
+                        isFirstCall = false;
                     }
                     delay(1);
                 }

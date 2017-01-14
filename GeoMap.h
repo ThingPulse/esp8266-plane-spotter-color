@@ -31,7 +31,7 @@ See more at https://blog.squix.org
 
 #define MAPQUEST_TILE_LENGTH 256.0
 
-typedef void (*ProgressCallback)(String fileName, uint32_t bytesDownloaded, uint32_t bytesTotal);
+typedef void (*ProgressCallback)(String fileName, uint32_t bytesDownloaded, uint32_t bytesTotal, boolean isFirstCall);
 
 enum MapProvider {
   MapQuest,

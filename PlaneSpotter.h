@@ -30,9 +30,11 @@ See more at https://blog.squix.org
 #include <FS.h>
 // JPEG decoder library
 #include <JPEGDecoder.h>
+#include <XPT2046_Touchscreen.h>
 #include "AdsbExchangeClient.h"
 #include "ILI9341.h"
 #include "GeoMap.h"
+
 
 #define TFT_BLACK   0x0000
 #define TFT_BLUE    0x001F
@@ -42,6 +44,11 @@ See more at https://blog.squix.org
 #define TFT_MAGENTA 0xF81F
 #define TFT_YELLOW  0xFFE0  
 #define TFT_WHITE   0xFFFF
+
+#define TS_MIN_X 220
+#define TS_MIN_Y 350
+#define TS_MAX_X 4000
+#define TS_MAX_Y 3500
 
 enum TextAlignment {
   LEFT, CENTER, RIGHT
@@ -71,8 +78,15 @@ class PlaneSpotter {
     
     void setTextColor(uint16_t c, uint16_t bg);
 
+    void setTouchScreen(XPT2046_Touchscreen* touchScreen);
+
+    void setTouchScreenCalibration(uint16_t minX, uint16_t minY, uint16_t maxX, uint16_t maxY);
+
+    CoordinatesPixel getTouchPoint();
+
   private:
     Adafruit_ILI9341* tft_;
+    XPT2046_Touchscreen* touchScreen_;
     GeoMap* geoMap_;
     // Shape of the plane
     // The points are defined as degree on a circle, the first array are the degrees, 
@@ -86,6 +100,10 @@ class PlaneSpotter {
     TextAlignment alignment_ = LEFT;
     uint16_t textColor_;
     uint16_t backgroundColor_;
+    uint16_t minX_ = TS_MIN_X;
+    uint16_t minY_ = TS_MIN_Y;
+    uint16_t maxX_ = TS_MAX_X;
+    uint16_t maxY_ = TS_MAX_Y;
 
 
 

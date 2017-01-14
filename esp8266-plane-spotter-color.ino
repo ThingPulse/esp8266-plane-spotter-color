@@ -37,6 +37,8 @@ See more at http://blog.squix.ch
 #include <ESP8266WebServer.h>
 
 
+
+
 // Easy Wifi Setup
 #include <WiFiManager.h>
 
@@ -60,6 +62,11 @@ GeoMap geoMap(MapProvider::Google, GOOGLE_API_KEY, MAP_WIDTH, MAP_HEIGHT);
 PlaneSpotter planeSpotter(&tft, &geoMap);
 
 
+XPT2046_Touchscreen ts(TOUCH_CS);  // Param 2 - NULL - No interrupts
+//XPT2046_Touchscreen ts(TOUCH_CS, 255);  // Param 2 - 255 - No interrupts
+//XPT2046_Touchscreen ts(TOUCH_CS, TOUCH_IRQ);  // Param 2 - Touch IRQ Pin - interrupt enabled polling
+
+
 Coordinates mapCenter;
 
 // Check http://www.virtualradarserver.co.uk/Documentation/Formats/AircraftList.aspx
@@ -69,11 +76,18 @@ Coordinates mapCenter;
 // airport zürich is on 1410ft => hide landed airplanes
 const String QUERY_STRING = "fAltL=1500&trFmt=sa";
 
-void downloadCallback(String filename, uint32_t bytesDownloaded, uint32_t bytesTotal);
+void downloadCallback(String filename, uint32_t bytesDownloaded, uint32_t bytesTotal, boolean isFirstCall);
 ProgressCallback _downloadCallback = downloadCallback;
+
+void updatePlanesAndDrawMap();
+void calibrateTouchScreen();
 
 Coordinates northWestBound;
 Coordinates southEastBound;
+
+long millisAtLastUpdate = 0;
+long millisAtLastTouch = 0;
+uint8_t currentZoom = MAP_ZOOM;
 
 
 void setup() {
@@ -92,12 +106,14 @@ void setup() {
   tft.cp437(false);
   tft.setFont(&Dialog_plain_9);
   tft.fillScreen(TFT_BLACK);
+  tft.setBacklight(255);
   planeSpotter.setTextColor(TFT_WHITE, TFT_BLACK);
   planeSpotter.setTextAlignment(CENTER);
   planeSpotter.drawString(160, 200, "     Loading Splash...     ");
 
   // Init file system
   if (!SPIFFS.begin()) { Serial.println("initialisation failed!"); return;}
+  //SPIFFS.format();
 
   // copy files from code to SPIFFS
   planeSpotter.copyProgmemToSpiffs(splash, splash_len, "/plane.jpg");
@@ -122,19 +138,59 @@ void setup() {
   locator.updateLocation();
   mapCenter.lat = locator.getLat().toFloat();
   mapCenter.lon = locator.getLon().toFloat();
+  mapCenter.lat = 47.424341887;
+  mapCenter.lon = 8.56877803;
 
   planeSpotter.setTextColor(TFT_WHITE, TFT_BLACK);
   planeSpotter.setTextAlignment(CENTER);
   planeSpotter.drawString(160, 200, "          Loading map...          ");
-  geoMap.downloadMap(mapCenter, MAP_ZOOM, _downloadCallback);
+  geoMap.downloadMap(mapCenter, currentZoom, _downloadCallback);
 
-  northWestBound = geoMap.convertToCoordinates({0,0});
-  southEastBound = geoMap.convertToCoordinates({MAP_WIDTH, MAP_HEIGHT});
+  northWestBound = geoMap.convertToCoordinates({-MAP_REQUEST_MARGIN,-MAP_REQUEST_MARGIN});
+  southEastBound = geoMap.convertToCoordinates({MAP_WIDTH + MAP_REQUEST_MARGIN, MAP_HEIGHT + MAP_REQUEST_MARGIN});
+
+  ts.begin();
+  planeSpotter.setTouchScreen(&ts);
   
 }
 
 
 void loop() {
+  boolean isTouched = ts.touched();
+  if(millis() - millisAtLastUpdate > 5000 && !isTouched) {
+    updatePlanesAndDrawMap();
+    millisAtLastUpdate = millis();
+  }
+
+  CoordinatesPixel pt = planeSpotter.getTouchPoint();
+  if (isTouched && millis() - millisAtLastTouch > 4000) {
+    //tft.fillCircle(pt.x, pt.y, 2, TFT_RED);
+    //currentZoom--;
+    mapCenter = geoMap.convertToCoordinates(pt);
+    geoMap.downloadMap(mapCenter, currentZoom, _downloadCallback);
+    northWestBound = geoMap.convertToCoordinates({-MAP_REQUEST_MARGIN,-MAP_REQUEST_MARGIN});
+    southEastBound = geoMap.convertToCoordinates({MAP_WIDTH + MAP_REQUEST_MARGIN, MAP_HEIGHT + MAP_REQUEST_MARGIN});
+    millisAtLastTouch = millis();
+  }
+  
+  delay(20);
+
+}
+
+
+
+void downloadCallback(String filename, uint32_t bytesDownloaded, uint32_t bytesTotal, boolean isFirstCall) {
+  if (isFirstCall) {
+      tft.fillRect(0, geoMap.getMapHeight(), tft.getWidth(), tft.getHeight() - geoMap.getMapHeight(), TFT_BLACK);
+  }
+  Serial.println(String(bytesDownloaded) + " / " + String(bytesTotal));
+  int width = 320;
+  int progress = width * bytesDownloaded / bytesTotal;
+  tft.fillRect(10, 220, progress, 5, TFT_WHITE);
+  planeSpotter.drawSPIFFSJpeg("/plane.jpg", 15 + progress, 220 - 15);
+}
+
+void updatePlanesAndDrawMap() {
   Serial.println("Heap: " + String(ESP.getFreeHeap()));
   adsbClient.updateVisibleAircraft(QUERY_STRING + "&lat=" + String(mapCenter.lat, 6) + "&lng=" + String(mapCenter.lon, 6) + "&fNBnd=" + String(northWestBound.lat, 9) + "&fWBnd=" + String(northWestBound.lon, 9) + "&fSBnd=" + String(southEastBound.lat, 9) + "&fEBnd=" + String(southEastBound.lon, 9));
   
@@ -142,7 +198,7 @@ void loop() {
   planeSpotter.drawSPIFFSJpeg(geoMap.getMapName(), 0, 0);
 
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  Aircraft closestAircraft = adsbClient.getClosestAircraft(mapCenter.lat, mapCenter.lon);
+  Aircraft closestAircraft = adsbClient.getClosestAircraft(mapCenter);
   for (int i = 0; i < adsbClient.getNumberOfAircrafts(); i++) {
     Aircraft aircraft = adsbClient.getAircraft(i);
     AircraftHistory history = adsbClient.getAircraftHistory(i);
@@ -158,18 +214,8 @@ void loop() {
   tft.fillCircle(p.x, p.y, 2, TFT_BLUE); 
 
   Serial.println(String(millis()-startMillis) + "ms for drawing");
-  delay(2000);
-
 }
 
 
-
-void downloadCallback(String filename, uint32_t bytesDownloaded, uint32_t bytesTotal) {
-  Serial.println(String(bytesDownloaded) + " / " + String(bytesTotal));
-  int width = 320;
-  int progress = width * bytesDownloaded / bytesTotal;
-  tft.fillRect(10, 220, progress, 5, TFT_WHITE);
-  planeSpotter.drawSPIFFSJpeg("/plane.jpg", 15 + progress, 220 - 15);
-}
 
 

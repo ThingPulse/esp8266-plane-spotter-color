@@ -95,7 +95,7 @@ class AdsbExchangeClient: public JsonListener {
     
     int getNumberOfAircrafts();
 
-    Aircraft getClosestAircraft(double lat, double lon);
+    Aircraft getClosestAircraft(Coordinates coordinates);
 
     virtual void whitespace(char c);
 

@@ -131,37 +131,58 @@ void PlaneSpotter::drawPlane(Aircraft aircraft, boolean isSpecial) {
 }
 
 void PlaneSpotter::drawInfoBox(Aircraft closestAircraft) {
-  int line1 = geoMap_->getMapHeight() + 18;
-  int line2 = geoMap_->getMapHeight() + 27;
-  int line3 = geoMap_->getMapHeight() + 36;
-  int right = tft_->getWidth() - 3;
+  int line1 = geoMap_->getMapHeight() + 9;
+  int line2 = geoMap_->getMapHeight() + 18;
+  int line3 = geoMap_->getMapHeight() + 27;
+  int line4 = geoMap_->getMapHeight() + 36;
+  int line5 = geoMap_->getMapHeight() + 45;
+  int rightTab0 = tft_->getWidth() - 3;
+  int leftTab1 = 0;
+  int leftTab2 = 40;
+  int leftTab3 = tft_->getWidth() / 2;
+  int leftTab4 = leftTab3 + 40;
+
   tft_->fillRect(0, geoMap_->getMapHeight(), tft_->width(), tft_->height() - geoMap_->getMapHeight(), TFT_BLACK);
   if (closestAircraft.call != "") {
     setTextAlignment(LEFT);
+    setTextColor(TFT_GREEN);
+    drawString(leftTab1, line1, "Call:");
     setTextColor(TFT_WHITE);
-    drawString(0, line1, closestAircraft.call);
+    drawString(leftTab2, line1, closestAircraft.call);
+
+    setTextColor(TFT_GREEN);
+    drawString(leftTab3, line1, "Type:");
+    setTextColor(TFT_WHITE);
+    drawString(leftTab4, line1, closestAircraft.aircraftType);
     
-    setTextAlignment(RIGHT);
-    drawString(right, line1, closestAircraft.aircraftType);
-    
-    setTextColor(TFT_YELLOW);
-    setTextAlignment(LEFT);
-    drawString(0, line2, "Alt: " + String(closestAircraft.altitude) + "ft");
-    
-  
-    setTextAlignment(CENTER);
-    drawString(tft_->getWidth() / 2, line2, "Spd: " + String(closestAircraft.speed, 0) + "kn");
-    
-    setTextAlignment(RIGHT);
-    drawString(right, line2, " Heading: " + String(closestAircraft.heading, 0));
+    setTextColor(TFT_GREEN);
+    drawString(leftTab1, line2, "Alt:");
+    setTextColor(TFT_WHITE);
+    drawString(leftTab2, line2, String(closestAircraft.altitude) + "ft");
+
+    setTextColor(TFT_GREEN);
+    drawString(leftTab3, line2, "Head: ");
+    setTextColor(TFT_WHITE);
+    drawString(leftTab4, line2, String(closestAircraft.heading, 0));
   
     setTextColor(TFT_GREEN);
-    setTextAlignment(LEFT);
-    drawString(0, line3, "Dst: " + String(closestAircraft.distance, 2) + "km");
+    drawString(leftTab1, line3, "Dst:");
+    setTextColor(TFT_WHITE);
+    drawString(leftTab2, line3, String(closestAircraft.distance, 2) + "km");
+    setTextColor(TFT_GREEN);
+    drawString(leftTab3, line3, "Spd:");
+    setTextColor(TFT_WHITE);
+    drawString(leftTab4, line3, String(closestAircraft.speed, 0) + "kn");
   
     if (closestAircraft.fromShort != "" && closestAircraft.toShort != "") {
-      setTextAlignment(RIGHT);
-      drawString(right, line3, "From: " + closestAircraft.fromShort + "=>" + closestAircraft.toShort);
+      setTextColor(TFT_GREEN);
+      drawString(leftTab1, line4, "From:");
+      setTextColor(TFT_WHITE);
+      drawString(leftTab2, line4, closestAircraft.from);
+      setTextColor(TFT_GREEN);
+      drawString(leftTab1, line5, "To:");
+      setTextColor(TFT_WHITE);
+      drawString(leftTab2, line5, closestAircraft.to);
     }
   }
  
@@ -207,5 +228,24 @@ void PlaneSpotter::setTextColor(uint16_t c, uint16_t bg) {
 
 void PlaneSpotter::setTextAlignment(TextAlignment alignment) {
   alignment_ = alignment;
+}
+
+void PlaneSpotter::setTouchScreen(XPT2046_Touchscreen* touchScreen) {
+  touchScreen_ = touchScreen;
+}
+
+void PlaneSpotter::setTouchScreenCalibration(uint16_t minX, uint16_t minY, uint16_t maxX, uint16_t maxY) {
+  minX_ = minX;
+  minY_ = minY;
+  maxX_ = maxX;
+  maxY_ = maxY;
+}
+
+CoordinatesPixel PlaneSpotter::getTouchPoint() {
+    TS_Point pt = touchScreen_->getPoint();
+    CoordinatesPixel p;
+    p.x = tft_->getWidth() * (pt.x - minX_) / (maxX_ - minX_);
+    p.y = tft_->getHeight() * (pt.y - minY_) / (maxY_ - minY_);
+    return p;
 }
 

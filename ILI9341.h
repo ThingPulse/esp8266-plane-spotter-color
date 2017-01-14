@@ -158,6 +158,7 @@ class Adafruit_ILI9341 : public Adafruit_GFX {
    void  writedata(uint8_t d);
    void  writedata(uint8_t * data, uint8_t size);
    void  writeCmdData(uint8_t cmd, uint8_t * data, uint8_t size);
+   void  setBacklight(uint8_t brightness);
 
 
    uint16_t getHeight(void);

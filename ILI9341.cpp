@@ -448,6 +448,10 @@ void Adafruit_ILI9341::begin(void) {
 
 }
 
+void Adafruit_ILI9341::setBacklight(uint8_t brightness) {
+    write(0x51, brightness);
+}
+
 
 void Adafruit_ILI9341::area_update_start(uint32_t x, uint32_t y, uint32_t w, uint32_t h) {
     spiCsLow();
