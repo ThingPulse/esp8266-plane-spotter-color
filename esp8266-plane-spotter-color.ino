@@ -106,7 +106,6 @@ void setup() {
   tft.cp437(false);
   tft.setFont(&Dialog_plain_9);
   tft.fillScreen(TFT_BLACK);
-  tft.setBacklight(255);
   planeSpotter.setTextColor(TFT_WHITE, TFT_BLACK);
   planeSpotter.setTextAlignment(CENTER);
   planeSpotter.drawString(160, 200, "     Loading Splash...     ");
@@ -116,7 +115,7 @@ void setup() {
   //SPIFFS.format();
 
   // copy files from code to SPIFFS
-  planeSpotter.copyProgmemToSpiffs(splash, splash_len, "/plane.jpg");
+  planeSpotter.copyProgmemToSpiffs(splash, splash_len, "/splash.jpg");
   planeSpotter.copyProgmemToSpiffs(plane, plane_len, "/plane.jpg");
   planeSpotter.drawSPIFFSJpeg("/splash.jpg", 30, 75);
   planeSpotter.setTextColor(TFT_WHITE, TFT_BLACK);
@@ -166,11 +165,12 @@ void loop() {
   if (isTouched && millis() - millisAtLastTouch > 4000) {
     //tft.fillCircle(pt.x, pt.y, 2, TFT_RED);
     //currentZoom--;
-    mapCenter = geoMap.convertToCoordinates(pt);
+    /*mapCenter = geoMap.convertToCoordinates(pt);
     geoMap.downloadMap(mapCenter, currentZoom, _downloadCallback);
     northWestBound = geoMap.convertToCoordinates({-MAP_REQUEST_MARGIN,-MAP_REQUEST_MARGIN});
     southEastBound = geoMap.convertToCoordinates({MAP_WIDTH + MAP_REQUEST_MARGIN, MAP_HEIGHT + MAP_REQUEST_MARGIN});
-    millisAtLastTouch = millis();
+    millisAtLastTouch = millis();*/
+    planeSpotter.drawMenu();
   }
   
   delay(20);

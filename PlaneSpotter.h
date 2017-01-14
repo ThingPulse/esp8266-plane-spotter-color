@@ -36,6 +36,7 @@ See more at https://blog.squix.org
 #include "GeoMap.h"
 
 
+
 #define TFT_BLACK   0x0000
 #define TFT_BLUE    0x001F
 #define TFT_RED     0xF800
@@ -67,6 +68,8 @@ class PlaneSpotter {
     void drawInfoBox(Aircraft closestAircraft);
 
     void drawAircraftHistory(Aircraft aircraft, AircraftHistory history);
+
+    void drawMenu();
 
     void drawString(int x, int y, char *text);
     

@@ -393,7 +393,7 @@ void Adafruit_ILI9341::begin(void) {
   Serial.print("\nImage Format: 0x"); Serial.println(x, HEX);
   x = readcommand8(ILI9341_RDSELFDIAG);
   Serial.print("\nSelf Diagnostic: 0x"); Serial.println(x, HEX);
-*/
+  */
   //if(cmdList) commandList(cmdList);
 
   if (hwSPI) spi_begin();
@@ -448,14 +448,10 @@ void Adafruit_ILI9341::begin(void) {
 
 }
 
-void Adafruit_ILI9341::setBacklight(uint8_t brightness) {
-    write(0x51, brightness);
-}
-
 
 void Adafruit_ILI9341::area_update_start(uint32_t x, uint32_t y, uint32_t w, uint32_t h) {
     spiCsLow();
-    setWindow(x, y, x + w - 1, y + h - 1);
+    setAddrWindow_(x, y, x + w - 1, y + h - 1);
 }
 
 void Adafruit_ILI9341::area_update_data(uint8_t *data, uint32_t pixel){
@@ -466,7 +462,7 @@ void Adafruit_ILI9341::area_update_end(void){
     spiCsHigh();
 }
 
-void Adafruit_ILI9341::setWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
+void Adafruit_ILI9341::setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
     spiCsLow();
     setAddrWindow_(x0, y0, x1, y1);
     spiCsHigh();
@@ -751,3 +747,47 @@ uint8_t Adafruit_ILI9341::readcommand8(uint8_t c, uint8_t index) {
     return r;
 }
  
+/*
+
+ uint16_t Adafruit_ILI9341::readcommand16(uint8_t c) {
+ digitalWrite(_dc, LOW);
+ if (_cs)
+ digitalWrite(_cs, LOW);
+ 
+ spiwrite(c);
+ pinMode(_sid, INPUT); // input!
+ uint16_t r = spiread();
+ r <<= 8;
+ r |= spiread();
+ if (_cs)
+ digitalWrite(_cs, HIGH);
+ 
+ pinMode(_sid, OUTPUT); // back to output
+ return r;
+ }
+ 
+ uint32_t Adafruit_ILI9341::readcommand32(uint8_t c) {
+ digitalWrite(_dc, LOW);
+ if (_cs)
+ digitalWrite(_cs, LOW);
+ spiwrite(c);
+ pinMode(_sid, INPUT); // input!
+ 
+ dummyclock();
+ dummyclock();
+ 
+ uint32_t r = spiread();
+ r <<= 8;
+ r |= spiread();
+ r <<= 8;
+ r |= spiread();
+ r <<= 8;
+ r |= spiread();
+ if (_cs)
+ digitalWrite(_cs, HIGH);
+ 
+ pinMode(_sid, OUTPUT); // back to output
+ return r;
+ }
+ 
+ */

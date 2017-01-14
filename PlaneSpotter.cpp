@@ -68,7 +68,7 @@ void PlaneSpotter::renderJPEG(int xpos, int ypos) {
     int mcu_y = JpegDec.MCUy * mcu_h + ypos;
     if ( ( mcu_x + mcu_w) <= tft_->width() && ( mcu_y + mcu_h) <= tft_->height()){
       
-      tft_->setWindow(mcu_x, mcu_y, mcu_x + mcu_w - 1, mcu_y + mcu_h - 1);
+      tft_->setAddrWindow(mcu_x, mcu_y, mcu_x + mcu_w - 1, mcu_y + mcu_h - 1);
       uint32_t count = mcu_pixels;
       while (count--) {tft_->pushColor(*pImg++);}
       // Push all MCU pixels to the TFT window, ~18% faster to pass an array pointer and length to the library
@@ -130,6 +130,7 @@ void PlaneSpotter::drawPlane(Aircraft aircraft, boolean isSpecial) {
   }
 }
 
+
 void PlaneSpotter::drawInfoBox(Aircraft closestAircraft) {
   int line1 = geoMap_->getMapHeight() + 9;
   int line2 = geoMap_->getMapHeight() + 18;
@@ -141,6 +142,8 @@ void PlaneSpotter::drawInfoBox(Aircraft closestAircraft) {
   int leftTab2 = 40;
   int leftTab3 = tft_->getWidth() / 2;
   int leftTab4 = leftTab3 + 40;
+
+  //tft_->setFont(&Dialog_plain_9);
 
   tft_->fillRect(0, geoMap_->getMapHeight(), tft_->width(), tft_->height() - geoMap_->getMapHeight(), TFT_BLACK);
   if (closestAircraft.call != "") {
@@ -186,6 +189,19 @@ void PlaneSpotter::drawInfoBox(Aircraft closestAircraft) {
     }
   }
  
+}
+
+void PlaneSpotter::drawMenu() {
+  //tft_->setFont(&Dialog_plain_16);
+  String commands[] = {"Pan", "Zoom+", "Zoom-", "Track"};
+  int numberOfCommands = 4;
+  tft_->fillScreen(TFT_BLACK);
+  int fontHeight = 16;
+  int buttonHeight = 40;
+  for (int i = 0; i < numberOfCommands; i++) {
+    tft_->drawFastHLine(0, i * buttonHeight, tft_->getWidth(), TFT_WHITE);
+    drawString(10, i * buttonHeight + (buttonHeight - fontHeight) / 2, commands[i]); 
+  }
 }
 
 void PlaneSpotter::drawString(int x, int y, char *text) {

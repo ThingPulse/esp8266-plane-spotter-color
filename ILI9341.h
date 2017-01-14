@@ -131,7 +131,7 @@ class Adafruit_ILI9341 : public Adafruit_GFX {
   Adafruit_ILI9341(int8_t _CS, int8_t _DC, int8_t _RST = -1);
 #endif
   void     begin(void),
-           setWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1),
+           setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1),
            pushColor(uint16_t color),
            fillScreen(uint16_t color),
            drawPixel(int16_t x, int16_t y, uint16_t color),
@@ -158,7 +158,6 @@ class Adafruit_ILI9341 : public Adafruit_GFX {
    void  writedata(uint8_t d);
    void  writedata(uint8_t * data, uint8_t size);
    void  writeCmdData(uint8_t cmd, uint8_t * data, uint8_t size);
-   void  setBacklight(uint8_t brightness);
 
 
    uint16_t getHeight(void);
@@ -182,11 +181,11 @@ class Adafruit_ILI9341 : public Adafruit_GFX {
 #else
   void spiwrite(uint8_t);
   void spiwrite16(uint16_t data);
-  void spiwriteBytes(uint8_t * data, uint32_t size);
-  void spiwritePattern(uint8_t * data, uint8_t size, uint32_t repeat);
+  void spiwriteBytes(uint8_t * data, uint8_t size);
+  void spiwritePattern(uint8_t * data, uint8_t size, uint8_t repeat);
   void setAddrWindow_(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 #endif
-  
+
   inline void spiCsHigh(void);
   inline void spiCsLow(void);
   inline void spiDcHigh(void);
