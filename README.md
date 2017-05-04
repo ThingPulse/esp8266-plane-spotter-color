@@ -33,9 +33,12 @@ https://blog.squix.org/2017/01/esp8266-planespotter-color.html
 ## Hardware Requirements
 
 This project was built for the following hardware:
-* ESP8266 Wifi chip, especially with the Wemos D1 Mini, but all other ESP8266 modules should work as well. You can *support my blog* and buy it on my shop: https://blog.squix.org/product/d1-mini-nodemcu-lua-wifi-esp8266-development-board
-* ILI9341/ XPT2046 TFT display with touch screen. At the moment the touch screen part is not used but I hope to extend it at a later time.
-https://www.aliexpress.com/item/240x320-2-4-SPI-TFT-LCD-Touch-Panel-Serial-Port-Module-with-PBC-ILI9341-5-3/2031268807.html
+* ESP8266 Wifi chip, especially with the Wemos D1 Mini, but all other ESP8266 modules should work as well.
+* ILI9341/ XPT2046 TFT display with touch screen.
+
+Since it was sometimes complicated to find the right parts I created a kit which contains all the parts including the connector PCB:
+https://blog.squix.org/product/esp8266-wifi-color-display-kit-2-4
+By buying the kit from me you are supporting future development. Thank you!
 
 Optionally you can get the connector PCB in the kicad sub directory. This allows for a easy soldering
 
