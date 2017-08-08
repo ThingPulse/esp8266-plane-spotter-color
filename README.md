@@ -1,7 +1,16 @@
-#ESP8266 Plane Spotter Color
+# ESP8266 Plane Spotter Color
 
 This is the repository of the ESP8266 Plane Spotter Color. It downloads data from web APIs and displays aircrafts close
 to your location on a map.
+
+## Hardware
+
+This code is made for an 240x320 65K ILI9341 display with code running on an ESP8266.
+Since it was sometimes complicated to find the right parts I created a kit which contains all the parts including the connector PCB:
+https://blog.squix.org/product/esp8266-wifi-color-display-kit-2-4
+By buying the kit from me you are supporting future development. Thank you!
+
+[![Squix ESP8266 Color Display Kit](resources/ESP8266ColorDisplayKit.png)](https://blog.squix.org/product/esp8266-wifi-color-display-kit-2-4)
 
 ## The related blog post
 https://blog.squix.org/2017/01/esp8266-planespotter-color.html
@@ -24,13 +33,13 @@ https://blog.squix.org/2017/01/esp8266-planespotter-color.html
   * select aircraft of interest
 * only download map if center of map, scale or map type changed
 
-## Known Issues
+## Known Issues
 * Flickering with every update: not enough memory for frame/ double buffering
 * Sometimes waypoints get lost
 * Encoding problems when displaying airport names containing non-ASCII characters (e.g. Zürich)
 
 
-## Hardware Requirements
+## Hardware Requirements
 
 This project was built for the following hardware:
 * ESP8266 Wifi chip, especially with the Wemos D1 Mini, but all other ESP8266 modules should work as well.
@@ -51,7 +60,7 @@ If you are currently prototyping this shows how to setup the connections for the
 ![Schema](images/PlaneSpotterSchema.png)
 
 
-## Libraries
+## Libraries
 
 Install the following libraries:
 
