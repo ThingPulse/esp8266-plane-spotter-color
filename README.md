@@ -10,7 +10,7 @@ Since it was sometimes complicated to find the right parts I created a kit which
 https://blog.squix.org/product/esp8266-wifi-color-display-kit-2-4
 By buying the kit from me you are supporting future development. Thank you!
 
-[![Squix ESP8266 Color Display Kit](resources/ESP8266ColorDisplayKit.png)](https://blog.squix.org/product/esp8266-wifi-color-display-kit-2-4)
+[![Squix ESP8266 Color Display Kit](https://github.com/squix78/esp8266-weather-station-color/raw/master/resources/ESP8266ColorDisplayKit.png)](https://blog.squix.org/product/esp8266-wifi-color-display-kit-2-4)
 
 ## The related blog post
 https://blog.squix.org/2017/01/esp8266-planespotter-color.html
